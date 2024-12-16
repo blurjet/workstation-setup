@@ -1,0 +1,54 @@
+---
+- name: Install Essential Packages
+  hosts: all
+  tasks:
+    - name: Install packages
+      become: true
+      package:
+        name:
+          - git
+          - python3
+          - python3-pip
+          - zsh
+          - neovim
+          - tmux
+          - yakuake
+          - curl
+          - wget
+          - autojump
+          - zoxide
+          - fzf       # fuzzy finder
+          - ripgrep   # grep replacement
+          - cloc      # count lines of code
+          - fd        # find replacement
+          - bat       # cat replacement
+          - exa       # ls replacement
+          - btop      # top replacement
+          - navi      # cheat sheet
+          - tldr      # cheat sheet
+          - qmv       # move files
+          - multitail # tail replacement
+          - httpie    # http client
+          - shellcheck # shell script checker
+          - moreutils # vidir
+          - snapd     # package manager
+        state: present
+    - name: Programming Tools
+      become: true
+      package:
+        name:
+          - python3
+          - python3-pip
+          - python3-setuptools
+          - python3-venv
+          - golang
+    - name: Install multi python packages
+      pip:
+        name:
+          - thefuck
+          - mycli
+          - pgcli
+          - litecli
+    - name: Print installation status
+      debug:
+        msg: "All essential packages installed"

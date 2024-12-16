@@ -1,0 +1,66 @@
+---
+- name: Install LazyVim Starter
+  hosts: all
+  vars:
+    user_home: "{{ ansible_env.HOME }}"
+
+  tasks:
+    - name: Install required packages
+      become: true
+      package:
+        name:
+          - git
+          - neovim
+          - ripgrep
+          - fd-find
+          - unzip
+          - wget
+          - curl
+        state: present
+
+    - name: Backup existing Neovim config
+      command: mv ~/.config/nvim ~/.config/nvim.bak
+      ignore_errors: yes
+
+    - name: Backup existing Neovim state
+      command: mv ~/.local/state/nvim ~/.local/state/nvim.bak
+      ignore_errors: yes
+
+    - name: Backup existing Neovim share
+      command: mv ~/.local/share/nvim ~/.local/share/nvim.bak
+      ignore_errors: yes
+
+    - name: Create Neovim config directory
+      file:
+        path: "{{ user_home }}/.config/nvim"
+        state: directory
+        mode: '0755'
+
+    - name: Clone LazyVim starter
+      git:
+        repo: https://github.com/LazyVim/starter
+        dest: "{{ user_home }}/.config/nvim"
+        clone: yes
+        update: yes
+
+    - name: Remove .git directory
+      file:
+        path: "{{ user_home }}/.config/nvim/.git"
+        state: absent
+
+    - name: Install tree-sitter
+      become: true
+      command: npm install -g tree-sitter-cli
+
+    - name: Create required directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - "{{ user_home }}/.local/share/nvim"
+        - "{{ user_home }}/.local/state/nvim"
+
+    - name: Print installation complete message
+      debug:
+        msg: "LazyVim has been installed successfully. Start nvim to complete the setup."

@@ -1,0 +1,62 @@
+---
+- name: Install KDE Plasma Desktop
+  hosts: all
+  tasks:
+    - name: Detect OS family
+      set_fact:
+        is_ubuntu: ansible_distribution == "Ubuntu"
+        is_debian: ansible_distribution == "Debian"
+        is_fedora: ansible_distribution == "Fedora"
+        is_centos: ansible_distribution == "CentOS"
+
+    - name: Install KDE Plasma on Ubuntu/Debian
+      become: true
+      apt:
+        name:
+          - kde-plasma-desktop
+          - plasma-workspace
+          - sddm
+          - kde-config-sddm
+          - plasma-nm
+          - kwin-x11
+          - dolphin
+          - konsole
+          - kate
+          - systemsettings
+          - plasma-workspace-wayland
+        state: present
+        update_cache: yes
+      when: is_ubuntu or is_debian
+
+    - name: Install KDE Plasma on Fedora
+      become: true
+      dnf:
+        name: "@kde-desktop-environment"
+        state: present
+      when: is_fedora
+
+    - name: Install KDE Plasma on CentOS
+      become: true
+      yum:
+        name: "@kde-desktop"
+        state: present
+      when: is_centos
+
+    - name: Set SDDM as default display manager
+      become: true
+      command: systemctl set-default graphical.target
+
+    - name: Enable SDDM service
+      become: true
+      service:
+        name: sddm
+        state: started
+        enabled: yes
+
+    - name: Print installation status
+      debug:
+        msg: "KDE Plasma桌面环境已安装完成。请重启系统以使用KDE Plasma。"
+
+    - name: Prompt for reboot
+      pause:
+        prompt: "系统需要重启才能完成安装。按回车键继续..."

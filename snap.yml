@@ -1,0 +1,41 @@
+---
+- name: Install Applications via Snap
+  hosts: all
+  tasks:
+    - name: Ensure snapd is installed
+      become: true
+      package:
+        name: snapd
+        state: present
+
+    - name: Ensure snapd service is running
+      become: true
+      service:
+        name: snapd
+        state: started
+        enabled: yes
+
+    - name: Install Snap Applications For Developer
+      become: true
+      snap:
+        classic: yes
+        name:
+          - code
+          - android-studio
+          - flutter
+
+    - name: Install Snap Applications For Personal
+      become: true
+      snap:
+        name:
+          - steam
+          - bitwarden
+          - obsidian
+          - discord
+          - vlc
+
+    - name: Print installation status
+      debug:
+        msg: 
+          - "VS Code 安装状态: {{ '已安装' if vscode_check.rc == 0 else '新安装' }}"
+          - "Android Studio 安装状态: {{ '已安装' if android_studio_check.rc == 0 else '新安装' }}"
